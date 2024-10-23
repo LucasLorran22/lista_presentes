@@ -1,0 +1,20 @@
+[
+    {
+        "nome": "Raspberry Pi 5",
+        "descricao": "Conheça o mais novo single board computer da família Raspberry Pi...",
+        "imagem": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg/1200px-Raspberry_Pi_4_Model_B_-_Side.jpg",
+        "link": "https://www.robocore.net/placa-raspberry-pi/raspberry-pi-5-2gb"
+    },
+    {
+        "nome": "Livros",
+        "descricao": "Confio que você vai escolher um que eu vou gostar...",
+        "imagem": "https://static.vecteezy.com/ti/vetor-gratis/p1/7442146-ilustracao-simples-com-pilha-de-livros-em-fundo-isolado-vetor.jpg",
+        "link": "https://www.amazon.com.br/Livros"
+    },
+    {
+        "nome": "Pocket Kit para Arduino com BlackBoard UNO R3",
+        "descricao": "O Pocket Kit para Arduino da RoboCore é um kit com mais de 80 componentes...",
+        "imagem": "https://s3-sa-east-1.amazonaws.com/robocore-lojavirtual/988/images/988_2_X.png?20240916105844",
+        "link": "https://www.robocore.net/kit-arduino/arduino-pocket-kit/blackboard-uno-r3"
+    }
+]
