@@ -31,4 +31,5 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Erro ao buscar a lista de presentes:', erro);
             listaPresentes.innerHTML = '<li>Desculpe, não foi possível carregar a lista de presentes.</li>';
         });
+		
 });
