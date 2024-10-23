@@ -1,7 +1,7 @@
 [
     {
         "nome": "Raspberry Pi 5",
-        "descricao": "Conheça o mais novo single board computer da família Raspberry Pi...",
+        "descricao": "Conheça o mais novo single board computer da família Raspberry Pi, a Raspberry Pi 5. O mais novo modelo chega com maior poder de processamento, passando de 1,8GHz de sua antecessora para 2,4GHz. A placa agora conta com o processador Broadcom BCM2712, um ARM v8 quad-core que trará uma melhora de 2 a 3 vezes na performance do computador. A versão desta página possui 2GB de memória RAM.",
         "imagem": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Raspberry_Pi_4_Model_B_-_Side.jpg/1200px-Raspberry_Pi_4_Model_B_-_Side.jpg",
         "link": "https://www.robocore.net/placa-raspberry-pi/raspberry-pi-5-2gb"
     },
@@ -13,7 +13,7 @@
     },
     {
         "nome": "Pocket Kit para Arduino com BlackBoard UNO R3",
-        "descricao": "O Pocket Kit para Arduino da RoboCore é um kit com mais de 80 componentes...",
+        "descricao": "O Pocket Kit para Arduino da RoboCore é um kit com mais de 80 componentes, perfeito para quem quer começar com um ótimo custo x benefício. Este é um kit simples, porém completo, com os principais componentes que você precisa ter para começar seu aprendizado com Arduino e fazer diversos experimentos.",
         "imagem": "https://s3-sa-east-1.amazonaws.com/robocore-lojavirtual/988/images/988_2_X.png?20240916105844",
         "link": "https://www.robocore.net/kit-arduino/arduino-pocket-kit/blackboard-uno-r3"
     }
