@@ -1,169 +1,317 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" href="https://www.pngall.com/wp-content/uploads/2016/07/Birthday-Present-PNG.png" type="image/x-icon">
-    <title>Lista de Presentes</title>
-    <link rel="stylesheet" href="style.css">
-	
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lista de Presentes</title>
+  <meta name="description" content="Lista de presentes dinâmica, atualizada a partir de um JSON hospedado em um Gist do GitHub." />
+
+  <!--
+    ✅ Como separar em arquivos:
+      - Salve este arquivo como index.html
+      - Tudo entre <style>...</style> pode ir para styles.css e ser linkado com:
+          <link rel="stylesheet" href="styles.css">
+      - Tudo entre <script>...</script> pode ir para app.js e ser linkado com:
+          <script src="app.js" defer></script>
+  -->
+
+  <style>
+    :root{
+      --bg: #0b0c10;
+      --card: #111317;
+      --muted: #9aa3b2;
+      --text: #e8ecf1;
+      --accent: #22c55e; /* verde suave */
+      --accent-2: #60a5fa; /* azul suave */
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      background: radial-gradient(1200px 800px at 70% -10%, #142034 0%, transparent 60%),
+                  radial-gradient(1000px 700px at -10% 20%, #13221f 0%, transparent 60%),
+                  var(--bg);
+      color: var(--text);
+    }
+
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header{ display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 20px; }
+    .title{
+      display:flex; align-items:center; gap:12px;
+    }
+    .badge{
+      font-size: 12px; letter-spacing:.3px; text-transform: uppercase; color: #cbd5e1; background: rgba(148,163,184,.12);
+      padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(148,163,184,.18);
+    }
+    h1{ font-size: clamp(20px, 3vw, 28px); margin:0; font-weight: 700; }
+
+    .toolbar{
+      display: grid; grid-template-columns: 1fr; gap: 12px; width: 100%;
+    }
+    @media (min-width: 760px){
+      .toolbar{ grid-template-columns: 1fr 160px 180px 140px; }
+    }
+
+    .control{
+      background: rgba(255,255,255,.03); border: 1px solid rgba(148,163,184,.18); border-radius: 12px; padding: 10px 12px; color: var(--text);
+      outline: none; backdrop-filter: blur(8px);
+    }
+    .control::placeholder{ color: var(--muted); }
+    .btn{ cursor: pointer; border: 1px solid rgba(148,163,184,.18); background: #18212c; color: var(--text); padding: 10px 14px; border-radius: 12px; transition: transform .04s ease, background .2s ease; }
+    .btn:hover{ background: #1b2633; }
+    .btn:active{ transform: translateY(1px); }
+
+    .grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; }
+
+    .card{
+      background: linear-gradient(180deg, #0f1319 0%, #0e1014 100%);
+      border: 1px solid rgba(148,163,184,.12);
+      border-radius: var(--radius);
+      overflow: hidden; box-shadow: var(--shadow); display:flex; flex-direction:column;
+    }
+    .thumb{ aspect-ratio: 16 / 10; width:100%; object-fit: cover; background:#0a0c0f; }
+    .content{ padding: 14px; display:flex; flex-direction: column; gap: 10px; }
+
+    .meta{ display:flex; align-items:center; gap: 8px; flex-wrap: wrap; }
+    .pill{ font-size: 12px; padding: 4px 8px; border-radius: 999px; border:1px solid rgba(148,163,184,.18); color:#cbd5e1; }
+    .pill.category{ background: rgba(96,165,250,.10); border-color: rgba(96,165,250,.25); }
+    .pill.price{ background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.25); }
+    .pill.prio-alta{ background: rgba(239,68,68,.10); border-color: rgba(239,68,68,.35); color:#fecaca; }
+    .pill.prio-media{ background: rgba(245,158,11,.10); border-color: rgba(245,158,11,.35); color:#fde68a; }
+    .pill.prio-baixa{ background: rgba(148,163,184,.10); border-color: rgba(148,163,184,.25); }
+
+    .actions{ display:flex; gap:8px; }
+    .actions .btn.primary{ background: linear-gradient(180deg, #1e7f52, #169255); border: none; }
+    .actions .btn.secondary{ background: #1c2330; }
+    .actions .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+    footer{ margin: 32px 0 16px; color: var(--muted); font-size: 14px; text-align:center; }
+    .hidden{ display:none !important; }
+    .empty{ text-align:center; color: var(--muted); padding: 40px 12px; border: 1px dashed rgba(148,163,184,.25); border-radius: 12px; background: rgba(255,255,255,.02); }
+  </style>
 </head>
 <body>
-    <div class="circuit-bg"></div>
-    
-    <header class="header">
-        <div class="container">
-            <div class="logo">
-                <span class="logo-text">Lista de Presentes</span>
-            </div>
-            <nav class="nav">
-                <a href="#home" class="nav-link active">Início</a>
-                <a href="#lista" class="nav-link">Lista</a>
-                <a href="#adicionar" class="nav-link">Adicionar</a>
-                <a href="#sobre" class="nav-link">Sobre</a>
-            </nav>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 2l2.39 4.84L20 8l-4 3.9.94 5.48L12 15.77 7.06 17.38 8 13 4 8l5.61-.16L12 2z" fill="currentColor" opacity=".9"/>
+        </svg>
+        <div>
+          <h1>Lista de Presentes</h1>
+		<!-- <div class="badge">Atualiza a partir de um JSON em Gist</div> -->
         </div>
+      </div>
+      <button id="refreshBtn" class="btn" type="button" title="Atualizar">⟳ Atualizar</button>
     </header>
 
-    <main>
-        <section id="home" class="hero">
-            <div class="container">
-                <h1 class="hero-title">Minha Lista de Presentes</h1>
-                <p class="hero-subtitle">Organize seus desejos e compartilhe com quem você ama</p>
-                <button class="cta-button" onclick="scrollToSection('lista')">
-                    Ver Lista
-                    <span class="button-glow"></span>
-                </button>
-            </div>
-        </section>
+    <section class="toolbar" role="region" aria-label="Ferramentas de busca e filtro">
+      <input id="search" class="control" type="search" placeholder="Buscar por nome ou descrição…" autocomplete="off" />
+      <select id="category" class="control" title="Categoria">
+        <option value="">Todas as categorias</option>
+      </select>
+      <select id="sort" class="control" title="Ordenar">
+        <option value="prioridade-desc">Prioridade (alta → baixa)</option>
+        <option value="preco-asc">Preço (menor → maior)</option>
+        <option value="preco-desc">Preço (maior → menor)</option>
+        <option value="nome-asc">Nome (A → Z)</option>
+      </select>
+      <select id="priceFilter" class="control" title="Faixa de preço">
+        <option value="">Todos os preços</option>
+        <option value="0-100">Até R$ 100</option>
+        <option value="100-300">R$ 100–300</option>
+        <option value="300-1000">R$ 300–1.000</option>
+        <option value="1000-999999">Acima de R$ 1.000</option>
+      </select>
+    </section>
 
-        <section id="lista" class="lista-section">
-            <div class="container">
-                <h2 class="section-title">Meus Presentes Desejados</h2>
-                <div class="filter-controls">
-                    <button class="filter-btn active" data-filter="todos">Todos</button>
-                    <button class="filter-btn" data-filter="eletronicos">Eletrônicos</button>
-                    <button class="filter-btn" data-filter="livros">Livros</button>
-                    <button class="filter-btn" data-filter="roupas">Roupas</button>
-                    <button class="filter-btn" data-filter="outros">Outros</button>
-                </div>
-                <div class="presentes-grid" id="presentesGrid">
-                    <!-- Os presentes serão inseridos aqui via JavaScript -->
-                </div>
-            </div>
-        </section>
+    <div id="emptyState" class="empty hidden">Nenhum item encontrado com os filtros atuais.</div>
 
-        <section id="adicionar" class="adicionar-section">
-            <div class="container">
-                <h2 class="section-title">Adicionar Novo Presente</h2>
-                <form class="presente-form" id="presenteForm">
-                    <div class="form-group">
-                        <label for="nome">Nome do Presente</label>
-                        <input type="text" id="nome" name="nome" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="descricao">Descrição</label>
-                        <textarea id="descricao" name="descricao" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="preco">Preço (R$)</label>
-                        <input type="number" id="preco" name="preco" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="categoria">Categoria</label>
-                        <select id="categoria" name="categoria" required>
-                            <option value="">Selecione uma categoria</option>
-                            <option value="eletronicos">Eletrônicos</option>
-                            <option value="livros">Livros</option>
-                            <option value="roupas">Roupas</option>
-                            <option value="outros">Outros</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="link">Link (opcional)</label>
-                        <input type="url" id="link" name="link" placeholder="https://...">
-                    </div>
-                    <div class="form-group">
-                        <label for="prioridade">Prioridade</label>
-                        <select id="prioridade" name="prioridade" required>
-                            <option value="baixa">Baixa</option>
-                            <option value="media">Média</option>
-                            <option value="alta">Alta</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="submit-btn">
-                        Adicionar Presente
-                        <span class="button-glow"></span>
-                    </button>
-                </form>
-            </div>
-        </section>
+    <main id="grid" class="grid" aria-live="polite"></main>
 
-        <section id="sobre" class="sobre-section">
-            <div class="container">
-                <h2 class="section-title">Sobre Esta Lista</h2>
-                <div class="sobre-content">
-                    <p>Esta é minha lista pessoal de presentes desejados. Aqui você pode encontrar itens que gostaria de receber em ocasiões especiais como aniversários, Natal, ou outras datas comemorativas.</p>
-                    <p>A lista é organizada por categorias e prioridades para facilitar a escolha. Sinta-se à vontade para usar como inspiração!</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Lista de Presentes. Feito com ❤️</p>
-        </div>
+    <footer>
+      <small>Fonte dos dados atualizada automaticamente. • Lista de <a href="https://lucaslorran.com.br" target="_blank" rel="noopener" style="color:inherit;">Lucas Lorran</a></small>
     </footer>
+  </div>
 
-    <!-- Modal para editar presente -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Editar Presente</h3>
-            <form id="editForm">
-                <div class="form-group">
-                    <label for="editNome">Nome do Presente</label>
-                    <input type="text" id="editNome" name="nome" required>
-                </div>
-                <div class="form-group">
-                    <label for="editDescricao">Descrição</label>
-                    <textarea id="editDescricao" name="descricao" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="editPreco">Preço (R$)</label>
-                    <input type="number" id="editPreco" name="preco" step="0.01" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="editCategoria">Categoria</label>
-                    <select id="editCategoria" name="categoria" required>
-                        <option value="eletronicos">Eletrônicos</option>
-                        <option value="livros">Livros</option>
-                        <option value="roupas">Roupas</option>
-                        <option value="outros">Outros</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="editLink">Link (opcional)</label>
-                    <input type="url" id="editLink" name="link" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label for="editPrioridade">Prioridade</label>
-                    <select id="editPrioridade" name="prioridade" required>
-                        <option value="baixa">Baixa</option>
-                        <option value="media">Média</option>
-                        <option value="alta">Alta</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-btn">
-                    Salvar Alterações
-                    <span class="button-glow"></span>
-                </button>
-            </form>
+  <script>
+    // === CONFIGURAÇÃO ======================================
+    // Use SEM o hash para sempre buscar a última versão do arquivo
+    const GIST_RAW_URL = "https://gist.githubusercontent.com/LucasLorran22/adac09cec148109558cde0971d470a78/raw/lista_itens";
+
+    // Caso tenha problemas de CORS ou queira fixar uma revisão específica, comente a linha acima
+    // e descomente a linha abaixo (usa uma revisão exata). Atualize o hash quando editar o Gist.
+    // const GIST_RAW_URL = "https://gist.githubusercontent.com/LucasLorran22/adac09cec148109558cde0971d470a78/raw/93f48a2d816954d3a2e27706087d96e443b6fbaf/lista_itens";
+
+    // === UTILITÁRIOS =======================================
+    const el = sel => document.querySelector(sel);
+    const formatBRL = v => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const prioridadeRank = p => ({ alta: 3, media: 2, baixa: 1 }[String(p).toLowerCase()] || 0);
+
+    // === ESTADO ===========================================
+    let state = {
+      items: [],
+      filtered: [],
+      categories: new Set(),
+      filters: { q: '', category: '', priceRange: '', sort: 'prioridade-desc' }
+    };
+
+    // === BUSCA ============================================
+    async function fetchLista(){
+      const res = await fetch(GIST_RAW_URL, { cache: 'no-store' });
+      if(!res.ok) throw new Error(`Falha ao carregar JSON (${res.status})`);
+      const data = await res.json();
+      if(!Array.isArray(data)) throw new Error('O JSON deve ser um array de itens.');
+      // Normaliza e coleta categorias
+      state.categories = new Set();
+      state.items = data.map((it, idx) => ({
+        id: idx + 1,
+        nome: it.nome ?? 'Item sem nome',
+        descricao: it.descricao ?? '',
+        preco: Number(it.preco ?? 0),
+        categoria: (it.categoria ?? 'outros').toString(),
+        link: (it.link ?? '').toString(),
+        prioridade: (it.prioridade ?? 'baixa').toString().toLowerCase(),
+        imagem: (it.imagem ?? '').toString()
+      })).map(it => { state.categories.add(it.categoria); return it; });
+      applyFilters();
+      buildCategoryOptions();
+    }
+
+    // === RENDER ===========================================
+    function buildCategoryOptions(){
+      const select = el('#category');
+      const current = select.value; // preserva seleção
+      select.innerHTML = '<option value="">Todas as categorias</option>' +
+        Array.from(state.categories).sort((a,b)=>a.localeCompare(b,'pt-BR')).map(c=>`<option value="${c}">${capitalize(c)}</option>`).join('');
+      // restaura seleção se existir
+      const exists = Array.from(select.options).some(o => o.value === current);
+      if(exists) select.value = current;
+    }
+
+    function render(){
+      const grid = el('#grid');
+      grid.innerHTML = '';
+      if(!state.filtered.length){
+        el('#emptyState').classList.remove('hidden');
+        return;
+      }
+      el('#emptyState').classList.add('hidden');
+
+      const frag = document.createDocumentFragment();
+      for(const item of state.filtered){
+        frag.appendChild(card(item));
+      }
+      grid.appendChild(frag);
+    }
+
+    function card(item){
+      const hasLink = !!item.link && item.link.startsWith('http');
+      const imgSrc = item.imagem || `https://via.placeholder.com/640x400/111827/94a3b8?text=${encodeURIComponent(item.nome)}`;
+
+      const root = document.createElement('article');
+      root.className = 'card';
+      root.innerHTML = `
+        <img class="thumb" src="${imgSrc}" alt="Imagem de ${escapeHtml(item.nome)}" loading="lazy" onerror="this.src='https://via.placeholder.com/640x400/111827/94a3b8?text=Imagem+indispon%C3%ADvel'" />
+        <div class="content">
+          <h2 style="margin:0 0 2px; font-size:18px; line-height:1.2">${escapeHtml(item.nome)}</h2>
+          <p style="margin:0; color: var(--muted); font-size: 14px;">${escapeHtml(item.descricao)}</p>
+          <div class="meta">
+            <span class="pill price">${formatBRL(item.preco)}</span>
+            <span class="pill category">${capitalize(item.categoria)}</span>
+            <span class="pill ${prioClass(item.prioridade)}">Prioridade: ${capitalize(item.prioridade)}</span>
+          </div>
+          <div class="actions">
+            <button class="btn secondary" type="button" aria-label="Copiar nome do item" data-action="copy" data-name="${escapeAttr(item.nome)}">📋 Copiar nome</button>
+            <a class="btn primary" ${hasLink ? `href="${item.link}" target="_blank" rel="noopener"` : 'tabindex="-1" aria-disabled="true"'}>
+              🛒 ${hasLink ? 'Ver/Comprar' : 'Sem link'}
+            </a>
+          </div>
         </div>
-    </div>
+      `;
+      root.querySelector('[data-action="copy"]').addEventListener('click', async (ev)=>{
+        try{
+          await navigator.clipboard.writeText(item.nome);
+          ev.currentTarget.textContent = '✔ Copiado!';
+          setTimeout(()=> ev.currentTarget.textContent = '📋 Copiar nome', 1200);
+        }catch(err){
+          alert('Não foi possível copiar.');
+        }
+      });
+      return root;
+    }
 
-    <script src="script.js"></script>
+    function prioClass(p){
+      const val = String(p).toLowerCase();
+      if(val === 'alta') return 'pill prio-alta';
+      if(val === 'media' || val === 'média') return 'pill prio-media';
+      return 'pill prio-baixa';
+    }
+
+    const capitalize = s => (s||'').charAt(0).toUpperCase() + (s||'').slice(1);
+    const escapeHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    const escapeAttr = s => String(s).replace(/"/g, '&quot;');
+
+    // === FILTROS ==========================================
+    function applyFilters(){
+      const { q, category, priceRange, sort } = state.filters;
+      let result = [...state.items];
+
+      if(q){
+        const needle = q.trim().toLowerCase();
+        result = result.filter(it => (it.nome+" "+it.descricao).toLowerCase().includes(needle));
+      }
+      if(category){
+        result = result.filter(it => it.categoria.toLowerCase() === category.toLowerCase());
+      }
+      if(priceRange){
+        const [min, max] = priceRange.split('-').map(Number);
+        result = result.filter(it => it.preco >= min && it.preco <= max);
+      }
+
+      // Ordenação
+      if(sort === 'preco-asc') result.sort((a,b) => a.preco - b.preco);
+      else if(sort === 'preco-desc') result.sort((a,b) => b.preco - a.preco);
+      else if(sort === 'nome-asc') result.sort((a,b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      else if(sort === 'prioridade-desc') result.sort((a,b) => prioridadeRank(b.prioridade) - prioridadeRank(a.prioridade));
+
+      state.filtered = result;
+      render();
+    }
+
+    // === EVENTOS ==========================================
+    function wire(){
+      el('#search').addEventListener('input', (e)=>{ state.filters.q = e.target.value; applyFilters(); });
+      el('#category').addEventListener('change', (e)=>{ state.filters.category = e.target.value; applyFilters(); });
+      el('#sort').addEventListener('change', (e)=>{ state.filters.sort = e.target.value; applyFilters(); });
+      el('#priceFilter').addEventListener('change', (e)=>{ state.filters.priceRange = e.target.value; applyFilters(); });
+      el('#refreshBtn').addEventListener('click', ()=> refresh());
+    }
+
+    async function refresh(){
+      el('#refreshBtn').disabled = true;
+      el('#refreshBtn').textContent = '⟳ Atualizando…';
+      try{
+        await fetchLista();
+      }catch(err){
+        console.error(err);
+        alert('Erro ao atualizar a lista: ' + err.message);
+      }finally{
+        el('#refreshBtn').disabled = false;
+        el('#refreshBtn').textContent = '⟳ Atualizar';
+      }
+    }
+
+    // === START ============================================
+    (async function init(){
+      wire();
+      await refresh();
+    })();
+  </script>
 </body>
 </html>
-

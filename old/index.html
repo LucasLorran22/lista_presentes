@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="https://www.pngall.com/wp-content/uploads/2016/07/Birthday-Present-PNG.png" type="image/x-icon">
+    <title>Lista de Presentes</title>
+    <link rel="stylesheet" href="style.css">
+	
+</head>
+<body>
+    <div class="circuit-bg"></div>
+    
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-text">Lista de Presentes</span>
+            </div>
+            <nav class="nav">
+                <a href="#home" class="nav-link active">Início</a>
+                <a href="#lista" class="nav-link">Lista</a>
+                <a href="#adicionar" class="nav-link">Adicionar</a>
+                <a href="#sobre" class="nav-link">Sobre</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container">
+                <h1 class="hero-title">Minha Lista de Presentes</h1>
+                <p class="hero-subtitle">Organize seus desejos e compartilhe com quem você ama</p>
+                <button class="cta-button" onclick="scrollToSection('lista')">
+                    Ver Lista
+                    <span class="button-glow"></span>
+                </button>
+            </div>
+        </section>
+
+        <section id="lista" class="lista-section">
+            <div class="container">
+                <h2 class="section-title">Meus Presentes Desejados</h2>
+                <div class="filter-controls">
+                    <button class="filter-btn active" data-filter="todos">Todos</button>
+                    <button class="filter-btn" data-filter="eletronicos">Eletrônicos</button>
+                    <button class="filter-btn" data-filter="livros">Livros</button>
+                    <button class="filter-btn" data-filter="roupas">Roupas</button>
+                    <button class="filter-btn" data-filter="outros">Outros</button>
+                </div>
+                <div class="presentes-grid" id="presentesGrid">
+                    <!-- Os presentes serão inseridos aqui via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section id="adicionar" class="adicionar-section">
+            <div class="container">
+                <h2 class="section-title">Adicionar Novo Presente</h2>
+                <form class="presente-form" id="presenteForm">
+                    <div class="form-group">
+                        <label for="nome">Nome do Presente</label>
+                        <input type="text" id="nome" name="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao">Descrição</label>
+                        <textarea id="descricao" name="descricao" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="preco">Preço (R$)</label>
+                        <input type="number" id="preco" name="preco" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" name="categoria" required>
+                            <option value="">Selecione uma categoria</option>
+                            <option value="eletronicos">Eletrônicos</option>
+                            <option value="livros">Livros</option>
+                            <option value="roupas">Roupas</option>
+                            <option value="outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="link">Link (opcional)</label>
+                        <input type="url" id="link" name="link" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="prioridade">Prioridade</label>
+                        <select id="prioridade" name="prioridade" required>
+                            <option value="baixa">Baixa</option>
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        Adicionar Presente
+                        <span class="button-glow"></span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="sobre" class="sobre-section">
+            <div class="container">
+                <h2 class="section-title">Sobre Esta Lista</h2>
+                <div class="sobre-content">
+                    <p>Esta é minha lista pessoal de presentes desejados. Aqui você pode encontrar itens que gostaria de receber em ocasiões especiais como aniversários, Natal, ou outras datas comemorativas.</p>
+                    <p>A lista é organizada por categorias e prioridades para facilitar a escolha. Sinta-se à vontade para usar como inspiração!</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Lista de Presentes. Feito com ❤️</p>
+        </div>
+    </footer>
+
+    <!-- Modal para editar presente -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Editar Presente</h3>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="editNome">Nome do Presente</label>
+                    <input type="text" id="editNome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDescricao">Descrição</label>
+                    <textarea id="editDescricao" name="descricao" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editPreco">Preço (R$)</label>
+                    <input type="number" id="editPreco" name="preco" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="editCategoria">Categoria</label>
+                    <select id="editCategoria" name="categoria" required>
+                        <option value="eletronicos">Eletrônicos</option>
+                        <option value="livros">Livros</option>
+                        <option value="roupas">Roupas</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editLink">Link (opcional)</label>
+                    <input type="url" id="editLink" name="link" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="editPrioridade">Prioridade</label>
+                    <select id="editPrioridade" name="prioridade" required>
+                        <option value="baixa">Baixa</option>
+                        <option value="media">Média</option>
+                        <option value="alta">Alta</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">
+                    Salvar Alterações
+                    <span class="button-glow"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
